@@ -4,15 +4,15 @@ module.exports = {
     register: async (req, res) => {
         const {username, password, profilePic} = req.body,
               db = req.app.get('db'),
-              result = await db.find_user_by_username(username);
-            
-        if(result[0]){
+              result = await db.user.find_user_by_username([username]),
+              currentUser = result[0];
+        if(currentUser){
             return res.status(409).send('Username Taken')
         }
 
         const salt = bcrypt.genSaltSync(10),
               hash = bcrypt.hashSync(password, salt),
-              registeredUser = await db.create_user([username, hash, profilePic]),
+              registeredUser = await db.user.create_user([username, hash, profilePic]),
               user = registeredUser[0]
         req.session.user = {
             username: user.username,
@@ -23,14 +23,14 @@ module.exports = {
     login: async (req, res) => {
         const {username, password} = req.body,
               db = req.app.get('db')
-              foundUser = db.find_user_by_username([username]),
+              foundUser = await db.user.find_user_by_username([username]),
               user = foundUser[0];
 
         if(!user){
-            return res.status(401).send('User not found, please create a profile to login');
+            return res.status(404).send('User not found, please create a profile to login');
         };
 
-        const isAuthenticated = bcrypt.compareSync(password, user.hash);
+        const isAuthenticated = bcrypt.compareSync(password, user.password);
 
         if(!isAuthenticated){
             return res.status(403).send('Incorrect Password');

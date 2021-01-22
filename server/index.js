@@ -13,7 +13,7 @@ app.use(express.json());
 
 massive({
     connectionString: CONNECTION_STRING,
-    ssl: {rejectedUnauthorized: false}
+    ssl: {rejectUnauthorized: false}
 }).then(db => {
     app.set('db', db);
     console.log('DB Connected');
