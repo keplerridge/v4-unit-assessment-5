@@ -27,7 +27,7 @@ export default function reducer(state = initialState, action){
         case UPDATE_USER:
             return {...state}
         case LOGOUT:
-            return initialState
+            return this.username = '', this.profilePic = ''
         default:
             return state;
     }
